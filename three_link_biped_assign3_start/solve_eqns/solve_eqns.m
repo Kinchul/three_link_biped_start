@@ -8,7 +8,7 @@
 
 function sln = solve_eqns(q0, dq0, num_steps)
 
-    options = odeset('RelTol',1e-5,'Events',event_func);
+    options = odeset('RelTol',1e-5,'Events',@event_func);
     h = 0.001; % time step
     tmax = 2; % max time that we allow for a single step
     tspan = 0:h:tmax; % from 0 to tmax with time step h
@@ -24,7 +24,7 @@ function sln = solve_eqns(q0, dq0, num_steps)
 
 
     for i = 1:num_steps
-        [T, Y, TE, YE] = ode45(@eqns, [tspan(i); tspan(i+1)], y0, options);  % use ode45 to solve the equations of motion (eqns.m)
+        [T, Y, TE, YE] = ode45(@eqns, t0+tspan, y0, options);  % use ode45 to solve the equations of motion (eqns.m)
         sln.T{i} = T;
         sln.Y{i} = Y;
         sln.TE{i} = TE;
@@ -34,8 +34,12 @@ function sln = solve_eqns(q0, dq0, num_steps)
         end
 
         % Impact map
-
+        q_m = YE(end, 1:3);
+        dq_m = YE(end, 4:6);
+        [q_p, dq_p] = impact(q_m', dq_m');
+        
         t0 = T(end);
+        y0 = [q_p; dq_p];
 
     end
 end
