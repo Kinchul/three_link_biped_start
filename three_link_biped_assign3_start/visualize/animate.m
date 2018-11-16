@@ -8,7 +8,10 @@ function animate(sln)
 figure();
 skip = 5; 
 
+
 num_steps = length(sln.Y); % total number of steps the robot has taken (find this from sln)
+
+[~, ~, ~, l1, l2, l3, ~] = set_parameters;
 r0 = [0; 0];
 tic();
 for j = 1:num_steps
@@ -21,7 +24,8 @@ for j = 1:num_steps
         
         hold off
     end
-    % update r0:
+    % update r0
+    r0 = [r0(1) + l1 * sin(q(1)) - l2 * sin(q(2)); 0];
     
 end
 t_anim = toc();
