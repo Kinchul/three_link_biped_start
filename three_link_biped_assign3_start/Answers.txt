@@ -1,0 +1,5 @@
+1. Why do we need to update r0?
+The equations of movements are solved in a reference frame fixed to the stance foot of the biped and it is displayed starting from this position. 
+Since the stance foot changes for each step, it is required to set the position where the visualization starts to the impact point of the swing foot that will become the stance foot after impact. 
+
+2.What does a real time factor of 1 mean ? How about a real time factor smaller than 1?

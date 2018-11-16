@@ -5,3 +5,4 @@ num_steps = 10;
 sln = solve_eqns(q0, dq0, num_steps);
 
 animate(sln);
+
