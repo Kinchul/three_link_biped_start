@@ -1,0 +1,5 @@
+# Windows default autosave extension
+*.asv
+
+# .DS_Store
+*.DS_Store
