@@ -3,3 +3,6 @@ The equations of movements are solved in a reference frame fixed to the stance f
 Since the stance foot changes for each step, it is required to set the position where the visualization starts to the impact point of the swing foot that will become the stance foot after impact. 
 
 	Q2: What does a real time factor of 1 mean ? How about a real time factor smaller than 1? How does 'skip' effect this value?
+t_anim (obtained with tic/toc) is the time the simulation takes to be displayed. The final time contained inside the struct sln is the time in which the simulation "really" occured.
+A factor 1 means that the simulation is running at the same time as what we saw on the screen. 
+If it is smaller (which is the case with our test computer, with a value around 1/4) it means that the computer used plot the simulation slower than it really occured. In our case, the simulation is seen 4 times slower.
