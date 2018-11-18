@@ -1,8 +1,34 @@
-	Q1: Why do we need to update r0?
-The equations of movements are solved in a reference frame fixed to the stance foot of the biped and it is displayed starting from this position. 
-Since the stance foot changes for each step, it is required to set the position where the visualization starts to the impact point of the swing foot that will become the stance foot after impact. 
+Q1: Why do we need to update r0?
 
-	Q2: What does a real time factor of 1 mean ? How about a real time factor smaller than 1? How does 'skip' effect this value?
-t_anim (obtained with tic/toc) is the time the simulation takes to be displayed. The final time contained inside the struct sln is the time in which the simulation "really" occured.
-A factor 1 means that the simulation is running at the same time as what we saw on the screen. 
-If it is smaller (which is the case with our test computer, with a value around 1/4) it means that the computer used plot the simulation slower than it really occured. In our case, the simulation is seen 4 times slower.
+    The equations of movements are solved in a reference frame fixed to the
+    stance foot of the biped and it is displayed starting from this position. 
+    Since the stance foot changes for each step, it is required to set the 
+    position where the visualization starts to the impact point of the swing 
+    foot that will become the stance foot after impact. 
+
+Q2: What does a real time factor of 1 mean ? How about a real time factor 
+smaller than 1? How does 'skip' effect this value?
+
+    t_anim (obtained with tic/toc) is the time the simulation takes to be 
+    displayed. The final time contained inside the struct sln is the time in
+    which the simulation "really" occured.
+
+    A factor 1 means that the simulation is running at the same time as what
+    we see it on the screen. 
+    If it is smaller (which is the case with our test computer, with a value
+    around 1/4) it means that the computer plotted the simulation slower than
+    it really occured. In our case, the simulation is seen 4 times slower.
+
+    The 'skip' parameter set how many step from the solution are skipped 
+    during the animation i.e. if skip is 5, it animate.m will display every
+    5th step and if skip is 1, it will display every computed step.
+    This means that with a lower 'skip', more steps are vizualised, which 
+    takes more time and therefore increases t_anim and decreases the real 
+    time factor.
+    For example, using a 'skip' of 2 gives a sort of slow-motion simultaion 
+    with a real time factor around 0.15, while a 'skip' of 8 gives an 
+    accelerated simulation with a real time factor of 0.45.
+
+
+
+
