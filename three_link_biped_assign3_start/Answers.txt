@@ -5,6 +5,9 @@ Q1: Why do we need to update r0?
     Since the stance foot changes for each step, it is required to set the 
     position where the visualization starts to the impact point of the swing 
     foot that will become the stance foot after impact. 
+    Note that the second component of ro (z0) is always 0 as we change foot
+    when the swing foot touches the ground. x0 is incremented by the length
+    of the step.
 
 Q2: What does a real time factor of 1 mean ? How about a real time factor 
 smaller than 1? How does 'skip' effect this value?
@@ -12,12 +15,13 @@ smaller than 1? How does 'skip' effect this value?
     t_anim (obtained with tic/toc) is the time the simulation takes to be 
     displayed. The final time contained inside the struct sln is the time in
     which the simulation "really" occured.
+    A time factor 1 means that both values are equal, so that the simulation 
+    is running at the same time as what we see it on the screen. 
 
-    A factor 1 means that the simulation is running at the same time as what
-    we see it on the screen. 
     If it is smaller (which is the case with our test computer, with a value
-    around 1/4) it means that the computer plotted the simulation slower than
-    it really occured. In our case, the simulation is seen 4 times slower.
+    around 1/4 with the default skip value of 5) it means that the computer 
+    plotted the simulation slower than it really occured. In our case, the 
+    simulation is seen 4 times slower.
 
     The 'skip' parameter set how many step from the solution are skipped 
     during the animation i.e. if skip is 5, it animate.m will display every
@@ -27,7 +31,8 @@ smaller than 1? How does 'skip' effect this value?
     time factor.
     For example, using a 'skip' of 2 gives a sort of slow-motion simultaion 
     with a real time factor around 0.15, while a 'skip' of 8 gives an 
-    accelerated simulation with a real time factor of 0.45.
+    accelerated simulation with a real time factor of 0.45. With skip around
+    30 we can see the simulation in real time.
 
 
 
