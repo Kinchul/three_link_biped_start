@@ -1,29 +1,74 @@
 %% Read the README_ASSIGN4.pdf to see what results you need to analyze here. 
 function sln = analyze(sln)
 
-    % creates and set the time, y, q and dq vectors
+    % sets the numbers for counters
+    number_steps = length(sln.Y);
+    number_time_step = 0;     % will be set later
+    
+    
+    % creates and set the time, q and dq vectors
     time = [];
-    y = [];
     q = [];
     dq = [];
     step_vect = [];
-    for i=1: length(sln.Y)
+    length_step = zeros(number_time_step, 1);
+    for i=1: number_steps      % for each step
+        
+        % fills the vectors
         time = [time; sln.T{i}];
-        y = [y; sln.Y{i}];
         q = [q; sln.Y{i}(:,1:3)];
         dq = [dq; sln.Y{i}(:,4:6)];
         step_vect = [step_vect; i*ones(length(sln.T{i}),1)];
+        
+        % compute step length
+        q_end = sln.YE{i}(1:3);
+        length_step(i) = kin_swf(q_end);
     end
-
+    number_time_step = length(time);
+    
+    
+    % obtain pos and vel of hip joint
+    pos_hip = zeros(number_time_step, 2);
+    vel_hip = zeros(number_time_step, 2);
+    for j=1: number_time_step       % for each time point
+        [x_h, z_h, dx_h, dz_h] = kin_hip(q(j,:), dq(j,:));
+        pos_hip(j,:) = [x_h; z_h];
+        vel_hip(j,:) = [dx_h; dz_h];
+    end
+    
+    
     % plotting
-    plotQ(time, q*180/pi);
-    plotDQ(time, dq*180/pi);
+%     plotQ(time, q*180/pi);
+%     plotDQ(time, dq*180/pi);
     plotStepVect(time, step_vect);
-    plotQ_v2(time, q*180/pi, step_vect);
-    plotDQ_v2(time, dq*180/pi, step_vect);
-
+%     plotQ_v2(time, q*180/pi, step_vect);
+%     plotDQ_v2(time, dq*180/pi, step_vect);
+    plotHipPos(time, pos_hip, step_vect, length_step);      % for now doesn't work...
+    
 end
 
+function plotHipPos(time, pos_hip, step_vect, length_step)
+
+    skip = 10; % plots only one in skip
+    length_step = [0, length_step];
+
+    % plots the position of the hip
+    figure;
+    for i=1: skip: length(time)
+        current_step = step_vect(i);
+        increment = length_step(current_step);
+        pos_hip(i,1) = pos_hip(i,1) + increment;
+        plot(pos_hip(i,1), pos_hip(i,2), '-o'); hold on;
+    end
+    title('hip position');
+    xlabel('x');
+    ylabel('z');
+    
+    figure;
+    plot(time, pos_hip(:,1)); hold on;
+    plot(time, pos_hip(:,2));
+    legend('x', 'z');
+end
 
 function plotQ(time, q)
   
