@@ -8,11 +8,11 @@ u = zeros(2,1);
 Kd1 = 5;
 Kp1 = 500;
 
-Kd2 = 0;
+Kd2 = 10;
 Kp2 = 100;
 
-qr1 = 0;
-qr2 = pi/3;
+qr1 = pi/12;
+qr2 = pi/4;
 
 y1 = q(3)- qr1 ;
 dy1 = dq(3);
