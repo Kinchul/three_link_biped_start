@@ -23,6 +23,9 @@ function sln = analyze(sln)
         % compute step length
         q_end = sln.YE{i}(1:3);
         length_step(i) = kin_swf(q_end);
+        
+        % fils step time
+        step_end_time(i) = sln.TE{i};
     end
     number_time_step = length(time);
     
@@ -80,16 +83,33 @@ function sln = analyze(sln)
     torque(:,3) = torque(:,3) * inertia_torso;
     torque(:,1:2) = torque(:,1:2) * inertia_legs;
     
-    
     % plotting
 %     plotStepVect(time, step_vect);
-    plotStepLength(step_vect, length_step);
+%     plotStepLength(step_vect, length_step);
+%     plotStepFrequency(time, step_vect, step_end_time);
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
 %     plotHipPos(time, pos_hip);
 %     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-    plotTorque(time, torque);
+%     plotTorque(time, torque);
 
+end
+
+function plotStepFrequency(time, step_vect, step_end_time)
+    
+    step_frequency = zeros(length(step_end_time),1);
+    step_frequency(1) = 1/step_end_time(1);
+    for i=2: length(step_end_time)
+        step_frequency(i) = 1/(step_end_time(i)-step_end_time(i-1));
+    end
+    
+    % plot step frequency vs step number
+    figure;
+    plot(1:length(step_frequency), step_frequency); grid on;
+    xlabel('Step number');
+    ylabel('Step frequency [Hz]');
+    title('Step frequency vs step number');
+    
 end
 
 function plotStepLength(step_vect, length_step)
