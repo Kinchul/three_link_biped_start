@@ -92,7 +92,30 @@ function sln = analyze(sln)
 %     plotHipPos(time, pos_hip);
 %     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
 %     plotTorque(time, torque);
+    plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
 
+end
+
+function plotQvsDQ(q, dq)
+    
+    % plot of q against dq
+    figure;
+    subplot(3,1,1);
+    plot(q(:,1), dq(:,1));
+    legend('Leg 1');
+    xlabel('q [deg]');
+    ylabel('dq [deg/s]');
+    subplot(3,1,2);
+    plot(q(:,2), dq(:,2));
+    legend('Leg 2');
+    xlabel('q [deg]');
+    ylabel('dq [deg/s]');
+    subplot(3,1,3);
+    plot(q(:,3), dq(:,3));
+    legend('Torso');
+    xlabel('q [deg]');
+    ylabel('dq [deg/s]');
+    
 end
 
 function plotStepFrequency(time, step_vect, step_end_time)
