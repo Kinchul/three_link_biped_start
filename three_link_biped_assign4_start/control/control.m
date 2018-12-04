@@ -5,16 +5,16 @@ function u = control(t, q, dq, q0, dq0, step_number)
 
 u = zeros(2,1);
 
-Kd1 = 5;
+Kd1 = 20;
 Kp1 = 500;
 
 Kd2 = 10;
-Kp2 = 100;
+Kp2 = 250;
 
-qr1 = pi/12;
-qr2 = pi/4;
+qr1 = pi/3;
+qr2 = pi/7;
 
-y1 = q(3)- qr1 ;
+y1 = q(3)- qr1;
 dy1 = dq(3);
 
 y2 = q(2) - q(1) + qr2; 
