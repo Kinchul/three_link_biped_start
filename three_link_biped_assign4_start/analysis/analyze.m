@@ -91,7 +91,7 @@ function sln = analyze(sln)
 %     plotDQ(time, dq_v2*180/pi);
 %     plotHipPos(time, pos_hip);
     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-    plotTorque(time, torque);
+%     plotTorque(time, torque);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
 %     plotCOT(time);
 
