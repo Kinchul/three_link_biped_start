@@ -32,42 +32,50 @@ function sln = analyze(sln)
     vel_hip = zeros(number_time_step, 2);
     for j=1: number_time_step       % for each time point
         [x_h, z_h, dx_h, dz_h] = kin_hip(q(j,:), dq(j,:));
-        pos_hip(j,:) = [x_h; z_h];
+        pos_hip(j,:) = [x_h + sum(length_step(1:step_vect(j))); z_h];
         vel_hip(j,:) = [dx_h; dz_h];
     end
     
     
-    % plotting
+% plotting
 %     plotQ(time, q*180/pi);
 %     plotDQ(time, dq*180/pi);
-    plotStepVect(time, step_vect);
+%     plotStepVect(time, step_vect);
 %     plotQ_v2(time, q*180/pi, step_vect);
 %     plotDQ_v2(time, dq*180/pi, step_vect);
-    plotHipPos(time, pos_hip, step_vect, length_step);      % for now doesn't work...
-    
+      plotHipPos(time, pos_hip);
+      plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+
 end
 
-function plotHipPos(time, pos_hip, step_vect, length_step)
-
-    skip = 10; % plots only one in skip
-    length_step = [0, length_step];
-
-    % plots the position of the hip
-    figure;
-    for i=1: skip: length(time)
-        current_step = step_vect(i);
-        increment = length_step(current_step);
-        pos_hip(i,1) = pos_hip(i,1) + increment;
-        plot(pos_hip(i,1), pos_hip(i,2), '-o'); hold on;
-    end
-    title('hip position');
-    xlabel('x');
-    ylabel('z');
-    
+function plotHipPos(time, pos_hip)
+   
     figure;
     plot(time, pos_hip(:,1)); hold on;
     plot(time, pos_hip(:,2));
-    legend('x', 'z');
+    legend('x', 'z','Location','NorthWest');
+    title('Hip position')
+    xlabel('Time [s]')
+    ylabel('Distance [m]')
+    
+end
+
+
+function plotSpeed(time, time_start, vel_hip, pos_hip)
+   
+    mean_velocity = round(pos_hip(end,1)/time(end),1);
+
+    figure;
+    plot(time, vel_hip(:,1)); hold on;
+    plot(time, vel_hip(:,2));
+    plot(time(time>time_start), ...
+         pos_hip(time>time_start,1)./time(time>time_start),'LineWidth',3);
+    legend('x', 'z',['Mean velocity: ',num2str(mean_velocity),' m/s'], ...
+           'Location','SouthEast');
+    title('Hip velocity')
+    xlabel('Time [s]')
+    ylabel('Speed [m/s]')
+        
 end
 
 function plotQ(time, q)
