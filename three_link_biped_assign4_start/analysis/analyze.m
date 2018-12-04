@@ -36,16 +36,80 @@ function sln = analyze(sln)
         vel_hip(j,:) = [dx_h; dz_h];
     end
     
+    % creates continuous q
+    q1_v2 = zeros(length(time),1);
+    q2_v2 = zeros(length(time),1);
+    for i=1: length(time)
+        if mod(step_vect(i),2) == 1
+            q1_v2(i) = q(i,1);
+            q2_v2(i) = q(i,2);
+        else
+            q1_v2(i) = q(i,2);
+            q2_v2(i) = q(i,1);
+        end
+    end
+    q_v2 = [q1_v2 q2_v2 q(:,3)];
     
-% plotting
-%     plotQ(time, q*180/pi);
-%     plotDQ(time, dq*180/pi);
+    % creates continuous dq
+    dq1_v2 = zeros(length(time),1);
+    dq2_v2 = zeros(length(time),1);
+    for i=1: length(time)
+        if mod(step_vect(i),2) == 1
+            dq1_v2(i) = dq(i,1);
+            dq2_v2(i) = dq(i,2);
+        else
+            dq1_v2(i) = dq(i,2);
+            dq2_v2(i) = dq(i,1);
+        end
+    end
+    dq_v2 = [dq1_v2 dq2_v2 dq(:,3)];
+    
+    % obtain torque
+    torque = zeros(number_time_step, 3);    % in order, leg1, leg2, torso
+    for j=2: number_time_step       % for each time point
+        for limb=1: 3               % for leg1, leg2 and torso
+            torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/(time(j)-time(j-1));
+            if(abs(torque(j,limb)-torque(j-1,limb))>500)   % removes spike
+                torque(j,limb) = torque(j-1,limb);
+            end
+        end
+    end
+    [m1, ~, m3, l1, ~, l3, ~] = set_parameters();
+    inertia_torso = m3*l3^2/4;
+    inertia_legs = m1*l1^2/4;
+    torque(:,3) = torque(:,3) * inertia_torso;
+    torque(:,1:2) = torque(:,1:2) * inertia_legs;
+    
+    
+    % plotting
 %     plotStepVect(time, step_vect);
-%     plotQ_v2(time, q*180/pi, step_vect);
-%     plotDQ_v2(time, dq*180/pi, step_vect);
-      plotHipPos(time, pos_hip);
-      plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+%     plotQ(time, q_v2*180/pi);
+%     plotDQ(time, dq_v2*180/pi);
+%     plotHipPos(time, pos_hip);
+%     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+    plotTorque(time, torque);
 
+end
+
+function plotTorque(time, torque)
+    
+    % plot torques
+    figure;
+    subplot(3,1,1);
+    plot(time, torque(:,1));
+    legend('Leg 1');
+    xlabel('Time');
+    ylabel('Torque [Nm]');
+    subplot(3,1,2);
+    plot(time, torque(:,2));
+    legend('Leg 2');
+    xlabel('Time');
+    ylabel('Torque [Nm]');
+    subplot(3,1,3);
+    plot(time, torque(:,3));
+    legend('Torso');
+    xlabel('Time');
+    ylabel('Torque [Nm]');
 end
 
 function plotHipPos(time, pos_hip)
@@ -99,43 +163,9 @@ function plotQ(time, q)
     ylabel('angle [deg]');
 end
 
-function plotQ_v2(time, q, step_vect)
-
-    % creates continuous q
-    q1_v2 = zeros(length(time),1);
-    q2_v2 = zeros(length(time),1);
-    for i=1: length(time)
-        if step_vect(i) == 1 || step_vect(i) == 3 || step_vect(i) == 5
-            q1_v2(i) = q(i,1);
-            q2_v2(i) = q(i,2);
-        else
-            q1_v2(i) = q(i,2);
-            q2_v2(i) = q(i,1);
-        end
-    end
-    
-    % plot angles
-    figure;
-    subplot(3,1,1);
-    plot(time, q1_v2);
-    legend('q1 mod');
-    xlabel('time');
-    ylabel('angle [deg]');
-    subplot(3,1,2);
-    plot(time, q2_v2);
-    legend('q2 mod');
-    xlabel('time');
-    ylabel('angle [deg]');
-    subplot(3,1,3);
-    plot(time, q(:,3));
-    legend('q3');
-    xlabel('time');
-    ylabel('angle [deg]');
-end
-
 function plotDQ(time, dq)
    
-    % plot angles
+    % plot angular velocity
     figure;
     subplot(3,1,1);
     plot(time, dq(:,1));
@@ -145,40 +175,6 @@ function plotDQ(time, dq)
     subplot(3,1,2);
     plot(time, dq(:,2));
     legend('dq2');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
-    subplot(3,1,3);
-    plot(time, dq(:,3));
-    legend('dq3');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
-end
-
-function plotDQ_v2(time, dq, step_vect)
-
-    % creates continuous q
-    dq1_v2 = zeros(length(time),1);
-    dq2_v2 = zeros(length(time),1);
-    for i=1: length(time)
-        if step_vect(i) == 1 || step_vect(i) == 3 || step_vect(i) == 5
-            dq1_v2(i) = dq(i,1);
-            dq2_v2(i) = dq(i,2);
-        else
-            dq1_v2(i) = dq(i,2);
-            dq2_v2(i) = dq(i,1);
-        end
-    end
-    
-    % plot angles
-    figure;
-    subplot(3,1,1);
-    plot(time, dq1_v2);
-    legend('dq1 mod');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
-    subplot(3,1,2);
-    plot(time, dq2_v2);
-    legend('dq2 mod');
     xlabel('time');
     ylabel('angular velocity [deg/s]');
     subplot(3,1,3);
