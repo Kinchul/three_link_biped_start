@@ -83,12 +83,29 @@ function sln = analyze(sln)
     
     % plotting
 %     plotStepVect(time, step_vect);
+    plotStepLength(step_vect, length_step);
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
 %     plotHipPos(time, pos_hip);
 %     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
     plotTorque(time, torque);
 
+end
+
+function plotStepLength(step_vect, length_step)
+    
+    length_step_long = zeros(length(step_vect),1);
+    for i=1: length(length_step_long)
+        length_step_long(i) = length_step(step_vect(i));
+    end
+
+    % plot step length vs step number
+    figure;
+    plot(step_vect, length_step_long); grid on;
+    xlabel('Step number');
+    ylabel('Step length [m]');
+    title('Step length vs step number');
+    
 end
 
 function plotTorque(time, torque)
