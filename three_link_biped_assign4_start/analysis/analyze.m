@@ -85,15 +85,15 @@ function sln = analyze(sln)
     
     % plotting
 %     plotStepVect(time, step_vect);
-%     plotStepLength(step_vect, length_step);
-%     plotStepFrequency(time, step_vect, step_end_time);
+    plotStepLength(step_vect, length_step);
+    plotStepFrequency(time, step_vect, step_end_time);
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
 %     plotHipPos(time, pos_hip);
-%     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-%     plotTorque(time, torque);
+    plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+    plotTorque(time, torque);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
-    plotCOT(time);
+%     plotCOT(time);
 
 end
 

@@ -5,20 +5,25 @@ function u = control(t, q, dq, q0, dq0, step_number)
 
 u = zeros(2,1);
 
-Kd1 = 20;
-Kp1 = 500;
+Kd1 = 80;
+Kp1 = 200;
 
-Kd2 = 10;
-Kp2 = 250;
+Kd2 = 5;
+Kp2 = 30;
 
-qr1 = pi/3;
+qr1 = pi/12;
 qr2 = pi/7;
 
-y1 = q(3)- qr1;
+y1  = q(3)- qr1;
 dy1 = dq(3);
 
-y2 = q(2) - q(1) + qr2; 
-dy2 = dq(2) - dq(1);
+% y2 = q(2) - q(1) + qr2; 
+% dy2 = dq(2) - dq(1);
+
+w = 2;
+max_ang = pi/2;
+y2  = q(2) - q(1) + max_ang * cos(w*(q(2) - q(1))) + pi/7;
+dy2 = dq(2) - dq(1) - max_ang * sin(w*q(2) - q(1)) * w * (dq(2) - dq(1));  
 
 u(1) = Kp1 * y1 + Kd1 * dy1;   
 u(2) = -Kp2 * y2  - Kd2 * dy2; 
