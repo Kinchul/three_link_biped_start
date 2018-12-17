@@ -89,7 +89,7 @@ function sln = analyze(sln)
 %     plotStepFrequency(time, step_vect, step_end_time);
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
-%     plotHipPos(time, pos_hip);
+    plotHipPos(time, pos_hip);
 %     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
 %     plotTorque(time, torque);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
@@ -180,10 +180,16 @@ end
 function plotHipPos(time, pos_hip)
    
     figure;
-    plot(time, pos_hip(:,1)); hold on;
+    subplot(2,1,1);
+    plot(time, pos_hip(:,1));
+    legend('x','Location','NorthWest');
+    title('Hip horizontal position')
+    xlabel('Time [s]')
+    ylabel('Distance [m]')
+    subplot(2,1,2);
     plot(time, pos_hip(:,2));
-    legend('x', 'z','Location','NorthWest');
-    title('Hip position')
+    legend('z','Location','NorthWest');
+    title('Hip vertical position')
     xlabel('Time [s]')
     ylabel('Distance [m]')
     
