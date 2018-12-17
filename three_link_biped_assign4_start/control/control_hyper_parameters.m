@@ -6,7 +6,7 @@ Kp = zeros(2,1);
 Kd = zeros(2,1);
 qr = zeros(2,1);
 
-if (step_number < 0) %not used
+if (step_number < 5)
     
     Kp(1) = 100;
     Kd(1) = 50;
@@ -18,14 +18,14 @@ if (step_number < 0) %not used
     qr(2) = pi/6;
     
 else    
-    Kp(1) = 80;
-    Kd(1) = 25;
+    Kp(1) = 100;
+    Kd(1) = 50;
 
-    Kp(2) = 30;
-    Kd(2) = 3;
+    Kp(2) = 15; %8
+    Kd(2) = 1.2; %1.2
 
-    qr(1) = pi/10;
-    qr(2) = pi/6;
+    qr(1) = pi/3;
+    qr(2) = pi/3;
 end
 
 end
