@@ -7,18 +7,18 @@ function sln = analyze(sln)
     
     
     % creates and set the time, q and dq vectors
-    time = [];
-    q = [];
-    dq = [];
-    step_vect = [];
+    time = [sln.T{1}(1)];
+    q = [sln.Y{1}(1,1:3)];
+    dq = [sln.Y{1}(1,4:6)];
+    step_vect = [1];
     length_step = zeros(number_time_step, 1);
     for i=1: number_steps      % for each step
         
         % fills the vectors
-        time = [time; sln.T{i}];
-        q = [q; sln.Y{i}(:,1:3)];
-        dq = [dq; sln.Y{i}(:,4:6)];
-        step_vect = [step_vect; i*ones(length(sln.T{i}),1)];
+        time = [time; sln.T{i}(2:end)];
+        q = [q; sln.Y{i}(2:end,1:3)];
+        dq = [dq; sln.Y{i}(2:end,4:6)];
+        step_vect = [step_vect; i*ones(length(sln.T{i})-1,1)];
         
         % compute step length
         q_end = sln.YE{i}(1:3);
@@ -69,19 +69,41 @@ function sln = analyze(sln)
     
     % obtain torque
     torque = zeros(number_time_step, 3);    % in order, leg1, leg2, torso
-    for j=2: number_time_step       % for each time point
-        for limb=1: 3               % for leg1, leg2 and torso
-            torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/(time(j)-time(j-1));
-            if(abs(torque(j,limb)-torque(j-1,limb))>500)   % removes spike
-                torque(j,limb) = torque(j-1,limb);
-            end
+    for j = 2 : number_time_step            % for each time point
+        for limb = 1 : 3                    % for leg1, leg2 and torso
+            dt = time(j)-time(j-1);
+            torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/dt;
+%             if(abs(torque(j,limb)-torque(j-1,limb))>500)   % removes spike
+%                 torque(j,limb) = torque(j-1,limb)
+%             end
         end
-    end
+    end    
     [m1, ~, m3, l1, ~, l3, ~] = set_parameters();
     inertia_torso = m3*l3^2/4;
     inertia_legs = m1*l1^2/4;
     torque(:,3) = torque(:,3) * inertia_torso;
     torque(:,1:2) = torque(:,1:2) * inertia_legs;
+    
+    torqueU = zeros(number_time_step, 2);
+    torqueU(:,1) = torque(:,3) - torque(:,2);
+    torqueU(:,2) = torque(:,3) + torque(:,1);  
+    
+    % Compute CoT
+    Etot = 0;
+    lastEkin = 0;
+    lastEpot = pos_hip(j,2) - (l1/2) * cos(q(j,1)) * m1 * 9.81 + pos_hip(j,2) - (l1/2) * cos(q(j,2)) * m1 * 9.81 + pos_hip(j,2) + (l3/2) * cos(q(j,3)) * m3 * 9.81;
+    for j=2: number_time_step      
+        Ekin = dq(j,1)^2 * inertia_legs / 2 + dq(j,2)^2 * inertia_legs / 2 +  dq(j,3)^2 * inertia_torso / 2;
+        Epot = pos_hip(j,2) - (l1/2) * cos(q(j,1)) * m1 * 9.81 + pos_hip(j,2) - (l1/2) * cos(q(j,2)) * m1 * 9.81 + pos_hip(j,2) + (l3/2) * cos(q(j,3)) * m3 * 9.81;
+        dEkin = Ekin-lastEkin;
+        dEpot = Epot-lastEpot;
+        
+        Etot = Etot + abs(dEkin-dEpot);
+        lastEkin = Ekin;
+        lastEpot = Epot;
+        
+    end
+    cot = Etot / ((m1+m1+m3) * 9.81 * pos_hip(number_time_step,2))
     
     % plotting
 %     plotStepVect(time, step_vect);
@@ -90,8 +112,10 @@ function sln = analyze(sln)
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
     plotHipPos(time, pos_hip);
-%     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-%     plotTorque(time, torque);
+    plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+    [idx,~] = find(time == cell2mat(sln.TE));
+    plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
+    plotTorque(time, torqueU);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
     plotCOT(time);
 
@@ -160,19 +184,14 @@ function plotTorque(time, torque)
     
     % plot torques
     figure;
-    subplot(3,1,1);
+    subplot(2,1,1);
     plot(time, torque(:,1));
-    legend('Leg 1');
+    legend('Actuator u1');
     xlabel('Time');
     ylabel('Torque [Nm]');
-    subplot(3,1,2);
+    subplot(2,1,2);
     plot(time, torque(:,2));
-    legend('Leg 2');
-    xlabel('Time');
-    ylabel('Torque [Nm]');
-    subplot(3,1,3);
-    plot(time, torque(:,3));
-    legend('Torso');
+    legend('Actuator u2');
     xlabel('Time');
     ylabel('Torque [Nm]');
 end

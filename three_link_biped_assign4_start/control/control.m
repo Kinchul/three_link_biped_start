@@ -5,21 +5,11 @@ function u = control(t, q, dq, q0, dq0, step_number)
 
 u = zeros(2,1);
 
-Kd1 = 20;
-Kp1 = 500;
+[Kp, Kd, qr] = control_hyper_parameters(step_number);
 
-Kd2 = 10;
-Kp2 = 250;
+[hd, dhd] = desired_outputs(q, dq, q0, dq0, qr, step_number);
 
-qr1 = pi/3;
-qr2 = pi/7;
+u(1) =  Kp(1) * hd(1) + Kd(1) * dhd(1); 
+u(2) = -Kp(2) * hd(2) - Kd(2) * dhd(2); 
 
-y1 = q(3)- qr1;
-dy1 = dq(3);
-
-y2 = q(2) - q(1) + qr2; 
-dy2 = dq(2) - dq(1);
-
-u(1) = Kp1 * y1 + Kd1 * dy1;   
-u(2) = -Kp2 * y2  - Kd2 * dy2; 
 end
