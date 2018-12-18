@@ -1,10 +1,14 @@
 % You can set any hyper parameters of the control function here; you may or
 % may not want to use the step_number as the input of the function. 
-function [Kp, Kd, qr] = control_hyper_parameters(step_number, desired_speed)
+function [Kp, Kd, qr] = control_hyper_parameters(step_number)
 
+% Initialize parameters
 Kp = zeros(2,1);
 Kd = zeros(2,1);
 qr = zeros(2,1);
+
+% Get desired speed
+global desired_speed
 
 % if (step_number < 5)
 %     
@@ -28,7 +32,7 @@ qr = zeros(2,1);
 %     qr(2) = pi/3;
 % end
 
-% starting the walk, not dependent of speed
+% Starting the walk, not dependent of speed
 if (step_number < 5)
     Kp(1) = 100;
     Kd(1) = 50;
@@ -39,7 +43,7 @@ if (step_number < 5)
     qr(1) = pi/12;
     qr(2) = pi/6;
 
-% walking at fixed speed
+% Walking at fixed speed
 else
     switch desired_speed
         case 0.5

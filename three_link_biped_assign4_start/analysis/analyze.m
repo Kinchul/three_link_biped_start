@@ -1,4 +1,4 @@
-%% Read the README_ASSIGN4.pdf to see what results you need to analyze here. 
+% Read the README_ASSIGN4.pdf to see what results you need to analyze here. 
 function sln = analyze(sln)
 
     % sets the numbers for counters
@@ -111,13 +111,13 @@ function sln = analyze(sln)
 %     plotStepFrequency(time, step_vect, step_end_time);
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
-    plotHipPos(time, pos_hip);
+%     plotHipPos(time, pos_hip);
     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-    [idx,~] = find(time == cell2mat(sln.TE));
-    plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
-    plotTorque(time, torqueU);
+%     [idx,~] = find(time == cell2mat(sln.TE));
+%     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
+%     plotTorque(time, torqueU);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
-    plotCOT(time);
+%     plotCOT(time);
 
 end
 
