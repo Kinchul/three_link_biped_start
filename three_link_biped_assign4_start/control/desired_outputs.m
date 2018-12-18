@@ -10,7 +10,7 @@ hd(1)  = q(3) - qr(1);
 dhd(1) = dq(3);
 
 % Set the second output: legs control
-if (step_number < 5)    
+if (step_number < 20)    
     hd(2) = q(2)  - q(1) + qr(2); 
     dhd(2) = dq(2) - dq(1);
 else

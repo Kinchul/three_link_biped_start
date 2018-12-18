@@ -69,13 +69,13 @@ function sln = analyze(sln)
     
     % obtain torque
     torque = zeros(number_time_step, 3);    % in order, leg1, leg2, torso
-    for j = 2 : number_time_step            % for each time point
+    for j = 2 : number_time_step        % for each time point
         for limb = 1 : 3                    % for leg1, leg2 and torso
             dt = time(j)-time(j-1);
             torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/dt;
-            if(abs(torque(j,limb)-torque(j-1,limb))>200)   % removes spikes
-                torque(j,limb) = torque(j-1,limb);
-            end
+%             if(abs(torque(j,limb)-torque(j-1,limb))>50)   % removes error spikes
+%                 torque(j,limb) = torque(j-1,limb);
+%             end
         end
     end    
     [m1, ~, m3, l1, ~, l3, ~] = set_parameters();
@@ -106,17 +106,20 @@ function sln = analyze(sln)
     cot = Etot / ((m1+m1+m3) * 9.81 * pos_hip(number_time_step,2));
     
     % plotting
-    plotStepVect(time, step_vect);
-    plotStepLength(step_vect, length_step);
-    plotStepFrequency(time, step_vect, step_end_time);
-    plotQ(time, q_v2*180/pi);
-    plotDQ(time, dq_v2*180/pi);
-    plotHipPos(time, pos_hip);
+%     plotStepVect(time, step_vect);
+%     plotStepLength(step_vect, length_step);
+%     plotStepFrequency(time, step_vect, step_end_time);
+%     plotQ(time, q_v2*180/pi);
+%     plotDQ(time, dq_v2*180/pi);
+%     plotHipPos(time, pos_hip);
     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+%     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
     [idx,~] = find(time == cell2mat(sln.TE));
     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
+%     t = 0:1:sln.TE{end}(1);
+%     [idx,~] = find(abs(time - t) < 1e-2);
+%     plotTorque(time(idx), torqueU(idx,:));
     plotTorque(time, torqueU);
-    plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
     plotCOT(time, cot);
 
 end
@@ -126,7 +129,7 @@ function plotCOT(time, cot)
     global desired_speed
 
     % display cot in command window
-    fprintf('Cost of transport: %.1d for speed %.1d', cot, desired_speed);
+    fprintf('Cost of transport: %.1f for speed %.1f\n\n', cot, desired_speed);
     
 end
 
@@ -219,7 +222,7 @@ end
 
 function plotSpeed(time, time_start, vel_hip, pos_hip)
    
-    mean_velocity = round(pos_hip(end,1)/time(end),1);
+    mean_velocity = round(pos_hip(end,1)/time(end),2);
 
     figure;
     plot(time, vel_hip(:,1)); hold on;
