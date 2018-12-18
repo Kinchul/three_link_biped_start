@@ -73,9 +73,9 @@ function sln = analyze(sln)
         for limb = 1 : 3                    % for leg1, leg2 and torso
             dt = time(j)-time(j-1);
             torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/dt;
-%             if(abs(torque(j,limb)-torque(j-1,limb))>500)   % removes spike
-%                 torque(j,limb) = torque(j-1,limb)
-%             end
+            if(abs(torque(j,limb)-torque(j-1,limb))>200)   % removes spikes
+                torque(j,limb) = torque(j-1,limb);
+            end
         end
     end    
     [m1, ~, m3, l1, ~, l3, ~] = set_parameters();
@@ -103,26 +103,31 @@ function sln = analyze(sln)
         lastEpot = Epot;
         
     end
-    cot = Etot / ((m1+m1+m3) * 9.81 * pos_hip(number_time_step,2))
+    cot = Etot / ((m1+m1+m3) * 9.81 * pos_hip(number_time_step,2));
     
     % plotting
-%     plotStepVect(time, step_vect);
-%     plotStepLength(step_vect, length_step);
-%     plotStepFrequency(time, step_vect, step_end_time);
-%     plotQ(time, q_v2*180/pi);
-%     plotDQ(time, dq_v2*180/pi);
-%     plotHipPos(time, pos_hip);
+    plotStepVect(time, step_vect);
+    plotStepLength(step_vect, length_step);
+    plotStepFrequency(time, step_vect, step_end_time);
+    plotQ(time, q_v2*180/pi);
+    plotDQ(time, dq_v2*180/pi);
+    plotHipPos(time, pos_hip);
     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-%     [idx,~] = find(time == cell2mat(sln.TE));
-%     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
-%     plotTorque(time, torqueU);
-%     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
-%     plotCOT(time);
+    [idx,~] = find(time == cell2mat(sln.TE));
+    plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
+    plotTorque(time, torqueU);
+    plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
+    plotCOT(time, cot);
 
 end
 
-function plotCOT(time)
-    %%TODO
+function plotCOT(time, cot)
+    
+    global desired_speed
+
+    % display cot in command window
+    fprintf('Cost of transport: %.1d for speed %.1d', cot, desired_speed);
+    
 end
 
 function plotQvsDQ(q, dq)
@@ -131,19 +136,19 @@ function plotQvsDQ(q, dq)
     figure;
     subplot(3,1,1);
     plot(q(:,1), dq(:,1));
-    legend('Leg 1');
     xlabel('q [deg]');
     ylabel('dq [deg/s]');
+    title('First leg');
     subplot(3,1,2);
     plot(q(:,2), dq(:,2));
-    legend('Leg 2');
     xlabel('q [deg]');
     ylabel('dq [deg/s]');
+    title('Second leg');
     subplot(3,1,3);
     plot(q(:,3), dq(:,3));
-    legend('Torso');
     xlabel('q [deg]');
     ylabel('dq [deg/s]');
+    title('Torso');
     
 end
 
@@ -186,13 +191,13 @@ function plotTorque(time, torque)
     figure;
     subplot(2,1,1);
     plot(time, torque(:,1));
-    legend('Actuator u1');
-    xlabel('Time');
+    title('Actuator u_1');
+    xlabel('Time [s]');
     ylabel('Torque [Nm]');
     subplot(2,1,2);
     plot(time, torque(:,2));
-    legend('Actuator u2');
-    xlabel('Time');
+    title('Actuator u_2');
+    xlabel('Time [s]');
     ylabel('Torque [Nm]');
 end
 
@@ -201,19 +206,16 @@ function plotHipPos(time, pos_hip)
     figure;
     subplot(2,1,1);
     plot(time, pos_hip(:,1));
-    legend('x','Location','NorthWest');
     title('Hip horizontal position')
     xlabel('Time [s]')
     ylabel('Distance [m]')
     subplot(2,1,2);
     plot(time, pos_hip(:,2));
-    legend('z','Location','NorthWest');
     title('Hip vertical position')
     xlabel('Time [s]')
     ylabel('Distance [m]')
     
 end
-
 
 function plotSpeed(time, time_start, vel_hip, pos_hip)
    
@@ -224,7 +226,7 @@ function plotSpeed(time, time_start, vel_hip, pos_hip)
     plot(time, vel_hip(:,2));
     plot(time(time>time_start), ...
          pos_hip(time>time_start,1)./time(time>time_start),'LineWidth',3);
-    legend('x', 'z',['Mean velocity: ',num2str(mean_velocity),' m/s'], ...
+    legend('Horizontal velocity', 'Vertical velocity',['Mean velocity: ',num2str(mean_velocity),' m/s'], ...
            'Location','SouthEast');
     title('Hip velocity')
     xlabel('Time [s]')
@@ -238,19 +240,19 @@ function plotQ(time, q)
     figure;
     subplot(3,1,1);
     plot(time, q(:,1));
-    legend('q1');
-    xlabel('time');
-    ylabel('angle [deg]');
+    title('q_1');
+    xlabel('Time [s]');
+    ylabel('Angle [deg]');
     subplot(3,1,2);
     plot(time, q(:,2));
-    legend('q2');
-    xlabel('time');
-    ylabel('angle [deg]');
+    title('q_2');
+    xlabel('Time [s]');
+    ylabel('Angle [deg]');
     subplot(3,1,3);
     plot(time, q(:,3));
-    legend('q3');
-    xlabel('time');
-    ylabel('angle [deg]');
+    title('q_3');
+    xlabel('Time [s]');
+    ylabel('Angle [deg]');
 end
 
 function plotDQ(time, dq)
@@ -259,24 +261,26 @@ function plotDQ(time, dq)
     figure;
     subplot(3,1,1);
     plot(time, dq(:,1));
-    legend('dq1');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
+    title('dq_1');
+    xlabel('Time [s]');
+    ylabel('Angle rate [deg/s]');
     subplot(3,1,2);
     plot(time, dq(:,2));
-    legend('dq2');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
+    title('dq_2');
+    xlabel('Time [s]');
+    ylabel('Angle rate [deg/s]');
     subplot(3,1,3);
     plot(time, dq(:,3));
-    legend('dq3');
-    xlabel('time');
-    ylabel('angular velocity [deg/s]');
+    title('dq_3');
+    xlabel('Time [s]');
+    ylabel('Angle rate [deg/s]');
 end
 
 function plotStepVect(time, step_vect)
     
     figure;
     plot(time, step_vect);
-    title('step number');
+    title('Step number');
+    xlabel('Time [s]');
+    ylabel('Step number');
 end
