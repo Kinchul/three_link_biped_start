@@ -3,9 +3,12 @@ function u = control(t, q, dq, q0, dq0, step_number)
 % function
 % you don't necessarily need to use all the inputs to this control function
 
+% can choose speed in [0.5 0.6 0.8 1 1.2]
+desired_speed = 1.2; % m/s
+
 u = zeros(2,1);
 
-[Kp, Kd, qr] = control_hyper_parameters(step_number);
+[Kp, Kd, qr] = control_hyper_parameters(step_number, desired_speed);
 
 [hd, dhd] = desired_outputs(t, q, dq, q0, dq0, qr, step_number);
 
