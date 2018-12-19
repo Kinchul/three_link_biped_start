@@ -89,6 +89,7 @@ function sln = analyze(sln)
     torqueU(:,2) = torque(:,3) + torque(:,1);  
     
     % Compute CoT
+    cot = zeros(number_time_step);
     Etot = 0;
     lastEkin = 0;
     lastEpot = (pos_hip(j,2) - (l1/2) * cos(q(j,1))) * m1 * 9.81 + (pos_hip(j,2) - (l1/2) * cos(q(j,2))) * m1 * 9.81 + (pos_hip(j,2) + (l3/2) * cos(q(j,3))) * m3 * 9.81;
@@ -101,9 +102,9 @@ function sln = analyze(sln)
         Etot = Etot + abs(dEkin-dEpot);
         lastEkin = Ekin;
         lastEpot = Epot;
-        
+    
+        cot(j) = Etot / ((m1+m1+m3) * 9.81 * pos_hip(j,1));
     end
-    cot = Etot / ((m1+m1+m3) * 9.81 * pos_hip(number_time_step,2));
     
     % plotting
 %     plotStepVect(time, step_vect);
@@ -112,7 +113,7 @@ function sln = analyze(sln)
 %     plotQ(time, q_v2*180/pi);
 %     plotDQ(time, dq_v2*180/pi);
 %     plotHipPos(time, pos_hip);
-    plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+    %plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
 %     [idx,~] = find(time == cell2mat(sln.TE));
 %     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
@@ -120,9 +121,26 @@ function sln = analyze(sln)
 %     [idx,~] = find(abs(time - t) < 1e-2);
 %     plotTorque(time(idx), torqueU(idx,:));
 %     plotTorque(time, torqueU);
-    printResults(cot,pos_hip(end,1)/time(end));
-    plot_u();
+    %printResults(cot,pos_hip(end,1)/time(end));
+    %plot_u();
+    plotCot(cot, step_vect);
 
+end
+
+
+function plotCot(cot, step_vect)
+    
+    cot_step = zeros(length(step_vect));
+    for i=1: length(cot_step)
+        cot_step(i) = cot(length(cot)/length(step_vect)*i);
+    end
+
+    % plot step length vs step number
+    figure;
+    plot(step_vect, cot_long); grid on;
+    xlabel('Step number');
+    ylabel('CoT');
+    title('Cost of Transport');
 end
 
 function plot_u()
@@ -152,7 +170,7 @@ function printResults(cot,speed)
 
     % display results in command window
     fprintf('\n');
-    fprintf('Cost of transport      :   %.1f\n',cot);
+    %fprintf('Cost of transport      :   %.2f\n',cot);
     fprintf('Target speed (m/s)     :   %.1f\n',desired_speed);
     fprintf('Average speed (m/s)    :   %.2f\n', speed);
     fprintf('Speed error            :   %.2f%%\n',error);
