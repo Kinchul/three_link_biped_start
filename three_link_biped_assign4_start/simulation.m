@@ -16,6 +16,14 @@ global u_store
 global current_index 
 current_index = 2;
 
+% Perturbations value
+global perturbation_value
+perturbation_value = 0;
+
+% Step before switching controler
+global nb_step_begins
+nb_step_begins = 5;
+
 % Solve the system
 sln = solve_eqns(q0, dq0, num_steps);
 

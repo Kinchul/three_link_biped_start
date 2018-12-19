@@ -12,8 +12,10 @@ qr = zeros(2,1);
 % Get desired speed
 global desired_speed
 
+global nb_step_begins
+
 % Starting the walk, not dependent of speed
-if (step_number < 5)
+if (step_number < nb_step_begins)
 
     Kp(1) = 80;         % 40
     Kd(1) = 40;         % 10
