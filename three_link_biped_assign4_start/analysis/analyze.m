@@ -4,8 +4,7 @@ function sln = analyze(sln)
     % sets the numbers for counters
     number_steps = length(sln.Y);
     number_time_step = 0;     % will be set later
-    
-    
+        
     % creates and set the time, q and dq vectors
     time = [sln.T{1}(1)];
     q = [sln.Y{1}(1,1:3)];
@@ -24,7 +23,7 @@ function sln = analyze(sln)
         q_end = sln.YE{i}(1:3);
         length_step(i) = kin_swf(q_end);
         
-        % fils step time
+        % final step time
         step_end_time(i) = sln.TE{i};
     end
     number_time_step = length(time);
@@ -67,29 +66,13 @@ function sln = analyze(sln)
     end
     dq_v2 = [dq1_v2 dq2_v2 dq(:,3)];
     
-    % obtain torque
-    torque = zeros(number_time_step, 3);    % in order, leg1, leg2, torso
-    for j = 2 : number_time_step        % for each time point
-        for limb = 1 : 3                    % for leg1, leg2 and torso
-            dt = time(j)-time(j-1);
-            torque(j,limb) = (dq_v2(j,limb) - dq_v2(j-1,limb))/dt;
-%             if(abs(torque(j,limb)-torque(j-1,limb))>50)   % removes error spikes
-%                 torque(j,limb) = torque(j-1,limb);
-%             end
-        end
-    end    
-    [m1, ~, m3, l1, ~, l3, ~] = set_parameters();
+    % Compute Inertia
+    [m1, ~, m3, l1, ~, l3, ~] = set_parameters();  
     inertia_torso = m3*l3^2/4;
     inertia_legs = m1*l1^2/4;
-    torque(:,3) = torque(:,3) * inertia_torso;
-    torque(:,1:2) = torque(:,1:2) * inertia_legs;
-    
-    torqueU = zeros(number_time_step, 2);
-    torqueU(:,1) = torque(:,3) - torque(:,2);
-    torqueU(:,2) = torque(:,3) + torque(:,1);  
     
     % Compute CoT
-    cot = zeros(number_time_step);
+    cot = zeros(number_time_step,1);
     Etot = 0;
     lastEkin = 0;
     lastEpot = (pos_hip(j,2) - (l1/2) * cos(q(j,1))) * m1 * 9.81 + (pos_hip(j,2) - (l1/2) * cos(q(j,2))) * m1 * 9.81 + (pos_hip(j,2) + (l3/2) * cos(q(j,3))) * m3 * 9.81;
@@ -106,38 +89,36 @@ function sln = analyze(sln)
         cot(j) = Etot / ((m1+m1+m3) * 9.81 * pos_hip(j,1));
     end
     
-    % plotting
-%     plotStepVect(time, step_vect);
-%     plotStepLength(step_vect, length_step);
-%     plotStepFrequency(time, step_vect, step_end_time);
-%     plotQ(time, q_v2*180/pi);
-%     plotDQ(time, dq_v2*180/pi);
-%     plotHipPos(time, pos_hip);
-    %plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
-%     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
-%     [idx,~] = find(time == cell2mat(sln.TE));
-%     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
-%     t = 0:1:sln.TE{end}(1);
-%     [idx,~] = find(abs(time - t) < 1e-2);
-%     plotTorque(time(idx), torqueU(idx,:));
-%     plotTorque(time, torqueU);
-    %printResults(cot,pos_hip(end,1)/time(end));
-    %plot_u();
+    % main plotting    
+    plotQ(time, q_v2*180/pi);
+    plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
+    plotStepLength(step_vect, length_step);
+    plotStepFrequency(time, step_vect, step_end_time);
+    plot_u();
+    plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
     plotCot(cot, step_vect);
+    
+    % additional plots
+    plotStepVect(time, step_vect);
+    plotDQ(time, dq_v2*180/pi);
+    plotHipPos(time, pos_hip);
+
+    % printf of general infos
+    printResults(cot(end),pos_hip(end,1)/time(end));
 
 end
 
 
 function plotCot(cot, step_vect)
     
-    cot_step = zeros(length(step_vect));
+    cot_step = zeros(length(step_vect),1);
     for i=1: length(cot_step)
         cot_step(i) = cot(length(cot)/length(step_vect)*i);
     end
 
     % plot step length vs step number
     figure;
-    plot(step_vect, cot_long); grid on;
+    plot(step_vect, cot_step); grid on;
     xlabel('Step number');
     ylabel('CoT');
     title('Cost of Transport');
@@ -170,7 +151,7 @@ function printResults(cot,speed)
 
     % display results in command window
     fprintf('\n');
-    %fprintf('Cost of transport      :   %.2f\n',cot);
+    fprintf('Cost of transport      :   %.2f\n',cot);
     fprintf('Target speed (m/s)     :   %.1f\n',desired_speed);
     fprintf('Average speed (m/s)    :   %.2f\n', speed);
     fprintf('Speed error            :   %.2f%%\n',error);
@@ -233,22 +214,6 @@ function plotStepLength(step_vect, length_step)
     ylabel('Step length [m]');
     title('Step length vs step number');
     
-end
-
-function plotTorque(time, torque)
-    
-    % plot torques
-    figure;
-    subplot(2,1,1);
-    plot(time, torque(:,1));
-    title('Actuator u_1');
-    xlabel('Time [s]');
-    ylabel('Torque [Nm]');
-    subplot(2,1,2);
-    plot(time, torque(:,2));
-    title('Actuator u_2');
-    xlabel('Time [s]');
-    ylabel('Torque [Nm]');
 end
 
 function plotHipPos(time, pos_hip)
@@ -333,3 +298,5 @@ function plotStepVect(time, step_vect)
     xlabel('Time [s]');
     ylabel('Step number');
 end
+
+
