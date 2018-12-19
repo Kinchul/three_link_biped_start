@@ -11,28 +11,28 @@ qr = zeros(2,1);
 global desired_speed
 
 % Starting the walk, not dependent of speed
-if (step_number < 20)
-    Kp(1) = 300;
-    Kd(1) = 35;
+if (step_number < 5)
+    Kp(1) = 100;
+    Kd(1) = 50;
 
-    Kp(2) = 140;
-    Kd(2) = 60;
+    Kp(2) = 30;
+    Kd(2) = 3;
 
-    qr(1) = pi/20;
-    qr(2) = pi/4;
+    qr(1) = pi/12;
+    qr(2) = pi/6;
 
 % Walking at fixed speed
 else
     switch desired_speed
-        case 0.5
-            Kp(1) = 300;
-            Kd(1) = 35;
+        case 0.4
+            Kp(1) = 100;
+            Kd(1) = 38;
 
-            Kp(2) = 140;
-            Kd(2) = 60;
+            Kp(2) = 11;
+            Kd(2) = 1.2;
 
-            qr(1) = pi/20;
-            qr(2) = pi/4;
+            qr(1) = -pi/80;
+            qr(2) = pi/2.5;
             
         case 0.6
             Kp(1) = 100;

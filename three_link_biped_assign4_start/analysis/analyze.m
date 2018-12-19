@@ -91,10 +91,10 @@ function sln = analyze(sln)
     % Compute CoT
     Etot = 0;
     lastEkin = 0;
-    lastEpot = pos_hip(j,2) - (l1/2) * cos(q(j,1)) * m1 * 9.81 + pos_hip(j,2) - (l1/2) * cos(q(j,2)) * m1 * 9.81 + pos_hip(j,2) + (l3/2) * cos(q(j,3)) * m3 * 9.81;
+    lastEpot = (pos_hip(j,2) - (l1/2) * cos(q(j,1))) * m1 * 9.81 + (pos_hip(j,2) - (l1/2) * cos(q(j,2))) * m1 * 9.81 + (pos_hip(j,2) + (l3/2) * cos(q(j,3))) * m3 * 9.81;
     for j=2: number_time_step      
-        Ekin = dq(j,1)^2 * inertia_legs / 2 + dq(j,2)^2 * inertia_legs / 2 +  dq(j,3)^2 * inertia_torso / 2;
-        Epot = pos_hip(j,2) - (l1/2) * cos(q(j,1)) * m1 * 9.81 + pos_hip(j,2) - (l1/2) * cos(q(j,2)) * m1 * 9.81 + pos_hip(j,2) + (l3/2) * cos(q(j,3)) * m3 * 9.81;
+        Ekin = dq(j,1)^2 * inertia_legs / 2 + dq(j,2)^2 * inertia_legs / 2 + dq(j,3)^2 * inertia_torso / 2;
+        Epot = (pos_hip(j,2) - (l1/2) * cos(q(j,1))) * m1 * 9.81 + (pos_hip(j,2) - (l1/2) * cos(q(j,2))) * m1 * 9.81 + (pos_hip(j,2) + (l3/2) * cos(q(j,3))) * m3 * 9.81;
         dEkin = Ekin-lastEkin;
         dEpot = Epot-lastEpot;
         
