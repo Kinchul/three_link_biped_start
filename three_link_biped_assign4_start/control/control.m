@@ -16,11 +16,21 @@ u(1) =  Kp(1) * hd(1) + Kd(1) * dhd(1);
 u(2) = -Kp(2) * hd(2) - Kd(2) * dhd(2);
 
 % saturation
-if abs(u(1)) > 30
-    u(1) = sign(u(1))*30;
-end
-if abs(u(2)) > 30
-    u(2) = sign(u(2))*30;
+% if abs(u(1)) > 30
+%     u(1) = sign(u(1))*30;
+% end
+% if abs(u(2)) > 30
+%     u(2) = sign(u(2))*30;
+% end
+
+% Store u
+global u_store
+global current_index
+u_store(current_index, 1) = t;
+u_store(current_index, 2) = u(1);
+u_store(current_index, 3) = u(2);
+if t>u_store(current_index-1)
+    current_index = current_index + 1;
 end
 
 end

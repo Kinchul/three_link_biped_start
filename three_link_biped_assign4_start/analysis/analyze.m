@@ -114,22 +114,51 @@ function sln = analyze(sln)
 %     plotHipPos(time, pos_hip);
     plotSpeed(time, sln.TE{1}, vel_hip, pos_hip);
 %     plotQvsDQ(q_v2*180/pi, dq_v2*180/pi);
-    [idx,~] = find(time == cell2mat(sln.TE));
-    plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
+%     [idx,~] = find(time == cell2mat(sln.TE));
+%     plotTorque(cell2mat(sln.TE)', torqueU(idx,:));
 %     t = 0:1:sln.TE{end}(1);
 %     [idx,~] = find(abs(time - t) < 1e-2);
 %     plotTorque(time(idx), torqueU(idx,:));
-    plotTorque(time, torqueU);
-    plotCOT(time, cot);
+%     plotTorque(time, torqueU);
+    printResults(cot,pos_hip(end,1)/time(end));
+    plot_u();
 
 end
 
-function plotCOT(time, cot)
+function plot_u()
     
-    global desired_speed
+    % get the values from global variable
+    global u_store
+    
+    % plot of u
+    figure;
+    subplot(2,1,1);
+    plot(u_store(:,1), u_store(:,2));
+    xlabel('Time [s]');
+    ylabel('u_1 [Nm]');
+    title('First actuator');
+    subplot(2,1,2);
+    plot(u_store(:,1), u_store(:,3));
+    xlabel('Time [s]');
+    ylabel('u_2 [Nm]');
+    title('Second actuator');
+end
 
-    % display cot in command window
-    fprintf('Cost of transport: %.1f for speed %.1f\n\n', cot, desired_speed);
+function printResults(cot,speed)
+    
+    global desired_speed    
+    global u_store
+    error = abs(desired_speed-speed)/desired_speed*100;
+
+    % display results in command window
+    fprintf('\n');
+    fprintf('Cost of transport      :   %.1f\n',cot);
+    fprintf('Target speed (m/s)     :   %.1f\n',desired_speed);
+    fprintf('Average speed (m/s)    :   %.2f\n', speed);
+    fprintf('Speed error            :   %.2f%%\n',error);
+    fprintf('Max torque on u1 (Nm)  :   %.1f\n',max(abs(u_store(:,2))));
+    fprintf('Max torque on u2 (Nm)  :   %.1f\n',max(abs(u_store(:,3))));
+    fprintf('\n');
     
 end
 
@@ -229,8 +258,7 @@ function plotSpeed(time, time_start, vel_hip, pos_hip)
     plot(time, vel_hip(:,2));
     plot(time(time>time_start), ...
          pos_hip(time>time_start,1)./time(time>time_start),'LineWidth',3);
-    legend('Horizontal velocity', 'Vertical velocity',['Mean velocity: ',num2str(mean_velocity),' m/s'], ...
-           'Location','SouthEast');
+    legend('Horizontal velocity', 'Vertical velocity',['Mean velocity: ',num2str(mean_velocity),' m/s'], 'Location','SouthEast');
     title('Hip velocity')
     xlabel('Time [s]')
     ylabel('Speed [m/s]')
