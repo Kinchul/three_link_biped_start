@@ -1,6 +1,8 @@
 function [step_number, value] = ext_perturbation_parameters()
 
-step_number = 20;
-value = 50;
+global perturbation_value
+
+step_number = 10;
+value = perturbation_value;
 
 end
